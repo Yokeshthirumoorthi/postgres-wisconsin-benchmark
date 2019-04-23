@@ -65,13 +65,19 @@ function shuffle(array) {
 const range = (tupCount) => [...Array(tupCount).keys()];
 const mod = (range, divisor) => range.map(x => x % divisor);
 // const modString = (range, divisor) => range.map(x => x % divisor);
+const getxChars = (length) => [...Array(length)].map(x => 'x');
 const generateUniqueString = (_) => {
     const SIGNIFICANT_CHARS_LENGTH = 7;
     const X_CHARS_LENGTH = 45;
     const chars = [..."ABCDEFGHIJKLMNOPQRSTUVWXYZ"];
-    const xChars = [...Array(X_CHARS_LENGTH)].map(x => 'x');
+    const xChars = getxChars(X_CHARS_LENGTH);
     return [...Array(SIGNIFICANT_CHARS_LENGTH)].map(i=>chars[Math.random()*chars.length|0]).concat(xChars).join``;
 };
+const cyclicStrings = (range, divisor, strings) => {
+    const X_CHARS_LENGTH = 48;
+    const xChars = getxChars(X_CHARS_LENGTH);
+    return range.map(i => strings[i % divisor].concat(xChars.join``));
+}; 
 
 const unique1 = shuffle(range(TUP_COUNT));
 const unique2 = range(TUP_COUNT);
@@ -88,7 +94,7 @@ const evenOnePercent = onePercent.map(x => x * 2);
 const oddOnePercent = onePercent.map(x => (x * 2) + 1);
 const stringu1 = unique2.map(generateUniqueString);
 const stringu2 = [...stringu1].sort();
-const string4 = "TODO";
+const string4 = cyclicStrings(unique2, 4, ["AAAA", "HHHH", "OOOO", "VVVV"]);
 
 const generateTuple = (primaryKey, index) => [
     unique1[index], 
@@ -106,7 +112,7 @@ const generateTuple = (primaryKey, index) => [
     oddOnePercent[index],
     stringu1[index], 
     stringu2[index], 
-    string4
+    string4[index]
 ];
 
 const dataset = unique2.map(generateTuple);
