@@ -3,7 +3,7 @@ const fs = require('fs')
 
 const TUP_COUNT = 50; // Number of tuples in result relation
 
-const DROP_TABLE = `DROP TABLE IF EXISTS TENKTUP1`;
+const DROP_TENKTUP1_TABLE = `DROP TABLE IF EXISTS TENKTUP1`;
 const CREATE_TENKTUP1_TABLE = `CREATE TABLE IF NOT EXISTS TENKTUP1
                 (   
                     unique1 integer NOT NULL,
@@ -116,7 +116,6 @@ const generateTuple = (primaryKey, index) => [
     string4[index]
 ];
 
-
 const storeData = (data, path) => {
   try {
     fs.writeFileSync(path, JSON.stringify(data))
@@ -130,12 +129,12 @@ const dataset = unique2.map(generateTuple);
 const client = new Client({
     user: 'postgres',
     host: 'localhost',
-    database: 'phoenix_react_curated_list_dev',
+    database: 'wisc',
     password: 'postgres',
     port: 5432,
   })  
 client.connect()
-client.query(DROP_TABLE)
+client.query(DROP_TENKTUP1_TABLE)
     .then(_ => client.query(CREATE_TENKTUP1_TABLE))
     .then(_ => dataset.map(data => client.query(INSERT_TENKTUP1_ROW, data)))
     .then(_ => client.query('SELECT * FROM TENKTUP1'))
