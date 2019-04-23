@@ -5,9 +5,14 @@
 Implementation of [Wisconsin Benchmark: Past, present and future](http://jimgray.azurewebsites.net/benchmarkhandbook/chapter4.pdf) using postgres database.
 
 #### Work Description
-I have written nodejs scripts to generate data for benchmarking Postgres database based on the Wisconsin Benchmark
-specification as described in the paper. The data generation code creates tables and loads the required data directly into 
-these tables. Also, loaded a small amount of data into the system.
+This project provides nodejs scripts to generate data for benchmarking Postgres database based on the Wisconsin Benchmark
+specification as described in the [paper]((http://jimgray.azurewebsites.net/benchmarkhandbook/chapter4.pdf)). 
+
+To acheive this, initially a node project is setup and add node-postgres npm dependency package. node-postgres package is used to connect js client to PostgreSQL serve. 
+In js, generate data for each column, bound to the schema constraints and the rules defined in the paper. Finally merge all the column arrays
+based on index to generate tuples/dataset. Map this dataset in-memory and insert each tuple into the database sequentially.  
+
+After all the rows are inserted, do a select query and save the output to a file.
 
 #### Sample Data
 Sample data generated using code generator is available [here](https://github.com/Yokeshthirumoorthi/postgres-wisconsin-benchmark/blob/master/sampledata.json)
@@ -30,19 +35,19 @@ Reasons for choosing PostgreSQL are
 #### Lessons learned
 
 Following are learned after doing this project
-* How to use node based module for interating with PostgresSQL using javascript
-* Points to be considered while generating synthetic data for benchmarking a database
+* How to use node based module for interating with PostgresSQL using javascript.
+* Points to be considered while generating synthetic data while benchmarking relational database.
 
 #### Known Issues
 * [node postgres module](https://node-postgres.com/) does not provide interface to create a new database in PostgresSQL. Hence it is required to manually create the database before executing the script.
 
 #### Build Instructions
 
-Disclaimer: This project is verified only in Ubuntu 18+.
+Disclaimer: This project is verified only in Ubuntu 18.04.
 
 1. Prerequisites for build
-    * Install latest Node version
-    * Install postgres
+    * Install latest Node version with this [instructions](https://www.digitalocean.com/community/tutorials/how-to-install-node-js-on-ubuntu-18-04) 
+    * Install postgres with this [instructions](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-postgresql-on-ubuntu-18-04)
 
 2. Setup the project
 
@@ -50,7 +55,7 @@ Disclaimer: This project is verified only in Ubuntu 18+.
     git clone https://github.com/Yokeshthirumoorthi/postgres-wisconsin-benchmark.git
     cd postgres-wisconsin-benchmark
     ```
-3. Creating the Database
+3. Generate and load data
 
     Note: Before executing the below lines, manually create a database with name `WISC` for user: postgres (default postgres user).
 
