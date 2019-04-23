@@ -10,7 +10,7 @@ specification as described in the paper. The data generation code creates tables
 these tables. Also, loaded a small amount of data into the system.
 
 #### Sample Data
-Sample data generated using code generator is available [here]()
+Sample data generated using code generator is available [here](https://github.com/Yokeshthirumoorthi/postgres-wisconsin-benchmark/blob/master/sampledata.json)
 
 #### Software Stack
 

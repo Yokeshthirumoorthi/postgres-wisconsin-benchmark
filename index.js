@@ -1,4 +1,5 @@
 const { Client } = require('pg')
+const fs = require('fs')
 
 const TUP_COUNT = 50; // Number of tuples in result relation
 
@@ -115,6 +116,15 @@ const generateTuple = (primaryKey, index) => [
     string4[index]
 ];
 
+
+const storeData = (data, path) => {
+  try {
+    fs.writeFileSync(path, JSON.stringify(data))
+  } catch (err) {
+    console.error(err)
+  }
+}
+
 const dataset = unique2.map(generateTuple);
 
 const client = new Client({
@@ -129,5 +139,5 @@ client.query(DROP_TABLE)
     .then(_ => client.query(CREATE_TENKTUP1_TABLE))
     .then(_ => dataset.map(data => client.query(INSERT_TENKTUP1_ROW, data)))
     .then(_ => client.query('SELECT * FROM TENKTUP1'))
-    .then(res => {console.log(res.rows); client.end()})
+    .then(res => {console.log(res.rows); storeData(res.rows, 'sampledata.json'); client.end()})
     .catch(e => console.error(e.stack))   
