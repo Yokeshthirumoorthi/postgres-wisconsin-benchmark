@@ -60,13 +60,13 @@ const FIELDS = [
     "four",
     "ten",
     "twenty",
-    "onePercent",
-    "tenPercent",
-    "twentyPercent",
-    "fiftyPercent",
+    "onepercent",
+    "tenpercent",
+    "twentypercent",
+    "fiftypercent",
     "unique3",
-    "evenOnePercent",
-    "oddOnePercent",
+    "evenonepercent",
+    "oddonepercent",
     "stringu1",
     "stringu2",
     "string4"
@@ -105,7 +105,7 @@ const storeData = (data) => {
   };
   
 const range = (tupCount) => [...Array(tupCount).keys()];
-const mod = (range, divisor) => range.map(x => x % divisor);
+const mod = (range, divisor) => [...range].map(x => x % divisor);
 // const modString = (range, divisor) => range.map(x => x % divisor);
 const getxChars = (length) => [...Array(length)].map(x => 'x');
 const generateUniqueString = (_) => {
