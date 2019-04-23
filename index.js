@@ -1,6 +1,7 @@
 const { Client } = require('pg')
 const fs = require('fs')
-
+const JSONToCSV = require("json2csv").parse;
+const FileSystem = require("fs");
 /**
  * Project Constants
  */
@@ -52,6 +53,24 @@ const INSERT_TENKTUP1_ROW = `INSERT INTO TENKTUP1(
     string4
     ) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)`;
 
+const FIELDS = [
+    "unique1",
+    "unique2",
+    "two",
+    "four",
+    "ten",
+    "twenty",
+    "onePercent",
+    "tenPercent",
+    "twentyPercent",
+    "fiftyPercent",
+    "unique3",
+    "evenOnePercent",
+    "oddOnePercent",
+    "stringu1",
+    "stringu2",
+    "string4"
+];
 /**
  * HELPER FUNCTIONS / UTIL FUNCTIONS 
  */
@@ -76,9 +95,10 @@ function shuffle(array) {
 }
 
 
-const storeData = (data, path) => {
+const storeData = (data) => {
     try {
-      fs.writeFileSync(path, JSON.stringify(data))
+        var csv = JSONToCSV(data, { fields: FIELDS});
+        FileSystem.writeFileSync("./sampledata.csv", csv);    
     } catch (err) {
       console.error(err)
     }
@@ -176,5 +196,9 @@ client.query(DROP_TENKTUP1_TABLE)
     .then(_ => client.query(CREATE_TENKTUP1_TABLE))
     .then(_ => dataset.map(data => client.query(INSERT_TENKTUP1_ROW, data)))
     .then(_ => client.query('SELECT * FROM TENKTUP1'))
-    .then(res => {console.log(res.rows); storeData(res.rows, 'sampledata.json'); client.end()})
+    .then(res => {
+        console.log(res.rows);     
+        storeData(res.rows)    
+        client.end();
+    })
     .catch(e => console.error(e.stack))   

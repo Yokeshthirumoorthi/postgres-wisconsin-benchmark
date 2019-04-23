@@ -15,7 +15,7 @@ based on index to generate tuples/dataset. Map this dataset in-memory and insert
 After all the rows are inserted, do a select query and save the output to a file.
 
 #### Sample Data
-Sample data generated using code generator is available [here](https://github.com/Yokeshthirumoorthi/postgres-wisconsin-benchmark/blob/master/sampledata.json)
+Sample data generated using code generator is available [here](https://github.com/Yokeshthirumoorthi/postgres-wisconsin-benchmark/blob/master/sampledata.csv)
 
 #### Software Stack
 
