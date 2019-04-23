@@ -8,13 +8,36 @@ const FileSystem = require("fs");
 const TUP_COUNT = 50; // Number of tuples in result relation
 
 /**
+ * DATABASE CONSTANTS
+ */
+const TABLES = ["TENKTUP1", "TENKTUP2"]
+const FIELDS = [
+    "unique1",
+    "unique2",
+    "two",
+    "four",
+    "ten",
+    "twenty",
+    "onepercent",
+    "tenpercent",
+    "twentypercent",
+    "fiftypercent",
+    "unique3",
+    "evenonepercent",
+    "oddonepercent",
+    "stringu1",
+    "stringu2",
+    "string4"
+];
+
+/**
  * POSTGRES SCRIPTS TO
  *  1. DROP TABLE
  *  2. CREATE TABLE
  *  3. INSERT ROW
  */
-const DROP_TENKTUP1_TABLE = `DROP TABLE IF EXISTS TENKTUP1`;
-const CREATE_TENKTUP1_TABLE = `CREATE TABLE IF NOT EXISTS TENKTUP1
+const drop_table = (tableName) => `DROP TABLE IF EXISTS ${tableName}`;
+const create_table = (tableName) => `CREATE TABLE IF NOT EXISTS ${tableName}
                 (   
                     unique1 integer NOT NULL,
                     unique2 integer NOT NULL PRIMARY KEY,
@@ -34,7 +57,7 @@ const CREATE_TENKTUP1_TABLE = `CREATE TABLE IF NOT EXISTS TENKTUP1
                     string4 char(52) NOT NULL 
                 )`;
 
-const INSERT_TENKTUP1_ROW = `INSERT INTO TENKTUP1(
+const insert_row = (tableName) => `INSERT INTO ${tableName}(
     unique1,
     unique2,
     two,
@@ -53,24 +76,7 @@ const INSERT_TENKTUP1_ROW = `INSERT INTO TENKTUP1(
     string4
     ) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)`;
 
-const FIELDS = [
-    "unique1",
-    "unique2",
-    "two",
-    "four",
-    "ten",
-    "twenty",
-    "onepercent",
-    "tenpercent",
-    "twentypercent",
-    "fiftypercent",
-    "unique3",
-    "evenonepercent",
-    "oddonepercent",
-    "stringu1",
-    "stringu2",
-    "string4"
-];
+
 /**
  * HELPER FUNCTIONS / UTIL FUNCTIONS 
  */
@@ -95,10 +101,10 @@ function shuffle(array) {
 }
 
 
-const storeData = (data) => {
+const storeData = (data, path) => {
     try {
         var csv = JSONToCSV(data, { fields: FIELDS});
-        FileSystem.writeFileSync("./sampledata.csv", csv);    
+        FileSystem.writeFileSync(path, csv);    
     } catch (err) {
       console.error(err)
     }
@@ -184,21 +190,33 @@ const dataset = unique2.map(generateTuple);
 /**
  * INSERT DATA INTO POSTGRES
  */
-const client = new Client({
-    user: 'postgres',
-    host: 'localhost',
-    database: 'wisc',
-    password: 'postgres',
-    port: 5432,
-  })  
-client.connect()
-client.query(DROP_TENKTUP1_TABLE)
-    .then(_ => client.query(CREATE_TENKTUP1_TABLE))
-    .then(_ => dataset.map(data => client.query(INSERT_TENKTUP1_ROW, data)))
-    .then(_ => client.query('SELECT * FROM TENKTUP1'))
-    .then(res => {
-        console.log(res.rows);     
-        storeData(res.rows)    
-        client.end();
-    })
-    .catch(e => console.error(e.stack))   
+
+const loadDataInRelation = (tableName) => {
+    const client = new Client({
+        user: 'postgres',
+        host: 'localhost',
+        database: 'wisc',
+        password: 'postgres',
+        port: 5432,
+      });
+    
+    client.connect();
+    
+    const DROP_TABLE = drop_table(tableName);
+    const CREATE_TABLE = create_table(tableName);
+    const INSERT_ROW = insert_row(tableName);
+    const outputPath = `./${tableName}.csv`    
+    client.query(DROP_TABLE)
+        .then(_ => client.query(CREATE_TABLE))
+        .then(_ => dataset.map(data => client.query(INSERT_ROW, data)))
+        .then(_ => client.query('SELECT * FROM TENKTUP1'))
+        .then(res => {
+            console.log(res.rows);     
+            storeData(res.rows, outputPath);    
+            client.end();
+        })
+        .catch(e => console.error(e.stack))
+};
+
+TABLES.map(loadDataInRelation);  
+
