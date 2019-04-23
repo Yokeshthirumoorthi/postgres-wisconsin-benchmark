@@ -5,14 +5,14 @@
 Implementation of [Wisconsin Benchmark: Past, present and future](http://jimgray.azurewebsites.net/benchmarkhandbook/chapter4.pdf) using postgres database.
 
 #### Work Description
-This project provides nodejs scripts to generate data for benchmarking Postgres database based on the Wisconsin Benchmark
+This project provides nodejs script to generate data for benchmarking Postgres database based on the Wisconsin Benchmark
 specification as described in the [paper]((http://jimgray.azurewebsites.net/benchmarkhandbook/chapter4.pdf)). 
 
-To acheive this, initially a node project is setup and add node-postgres npm dependency package. node-postgres package is used to connect js client to PostgreSQL serve. 
-In js, generate data for each column, bound to the schema constraints and the rules defined in the paper. Finally merge all the column arrays
-based on index to generate tuples/dataset. Map this dataset in-memory and insert each tuple into the database sequentially.  
+To acheive this, initially a node project is initialized with node-postgres npm dependency package. node-postgres package is used to connect js client to PostgreSQL serve. 
+In js, data is generated for each column, in compliance to the schema constraints and the rules defined in the paper. Finally all the column arrays are merged
+based on indices to generate tuples/dataset. This in-memory dataset is iterated to insert each tuple into the database sequentially.  
 
-After all the rows are inserted, do a select query and save the output to a file.
+After all the rows were inserted, a select query is execute for data verification and to save the sample output to a file.
 
 #### Sample Data
 Sample data (50 rows) generated using code generator is available here - [TENKTUP1](https://github.com/Yokeshthirumoorthi/postgres-wisconsin-benchmark/blob/master/TENKTUP1.csv) and here [TENKTUP2](https://github.com/Yokeshthirumoorthi/postgres-wisconsin-benchmark/blob/master/TENKTUP2.csv)
@@ -35,7 +35,7 @@ Reasons for choosing PostgreSQL are
 #### Lessons learned
 
 Following are learned after doing this project
-* How to use node based module for interating with PostgresSQL using javascript.
+* How to use node based module for interfacing javascript with PostgresSQL.
 * Points to be considered while generating synthetic data while benchmarking relational database.
 
 #### Known Issues
