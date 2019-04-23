@@ -87,7 +87,7 @@ const unique3 = shuffle(range(TUP_COUNT));
 const evenOnePercent = onePercent.map(x => x * 2);
 const oddOnePercent = onePercent.map(x => (x * 2) + 1);
 const stringu1 = unique2.map(generateUniqueString);
-const stringu2 = "TODO";
+const stringu2 = [...stringu1].sort();
 const string4 = "TODO";
 
 const generateTuple = (primaryKey, index) => [
@@ -105,7 +105,8 @@ const generateTuple = (primaryKey, index) => [
     evenOnePercent[index],
     oddOnePercent[index],
     stringu1[index], 
-    stringu2, string4
+    stringu2[index], 
+    string4
 ];
 
 const dataset = unique2.map(generateTuple);
