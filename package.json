@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/Yokeshthirumoorthi/postgres-wisconsin-benchmark#readme",
   "dependencies": {
+    "aerospike": "^3.10.0",
     "json2csv": "^4.5.0",
     "pg": "^7.10.0"
   }
