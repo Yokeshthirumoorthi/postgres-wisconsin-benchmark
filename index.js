@@ -76,10 +76,13 @@ const insert_row = (tableName) => `INSERT INTO ${tableName}(
     string4
     ) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)`;
 
+const select_all_rows = (tableName) => `SELECT * FROM ${tableName}`;
 
 /**
  * HELPER FUNCTIONS / UTIL FUNCTIONS 
  */
+
+// Given an array, randomly shuffle the position of elements of the array 
 // Ref : https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
 function shuffle(array) {
     var currentIndex = array.length, temporaryValue, randomIndex;
@@ -100,8 +103,8 @@ function shuffle(array) {
     return array;
 }
 
-
-const storeData = (data, path) => {
+// Converts json data to csv and save it in the out path
+const json2csv = (data, path) => {
     try {
         var csv = JSONToCSV(data, { fields: FIELDS});
         FileSystem.writeFileSync(path, csv);    
@@ -109,11 +112,14 @@ const storeData = (data, path) => {
       console.error(err)
     }
   };
-  
+ 
+//generate a range of integers  
 const range = (tupCount) => [...Array(tupCount).keys()];
+//simple mod function for integers
 const mod = (range, divisor) => [...range].map(x => x % divisor);
-// const modString = (range, divisor) => range.map(x => x % divisor);
+//Produces an array of 'x' chars
 const getxChars = (length) => [...Array(length)].map(x => 'x');
+//Generates the significant string
 const generateUniqueString = (_) => {
     const SIGNIFICANT_CHARS_LENGTH = 7;
     const X_CHARS_LENGTH = 45;
@@ -121,6 +127,7 @@ const generateUniqueString = (_) => {
     const xChars = getxChars(X_CHARS_LENGTH);
     return [...Array(SIGNIFICANT_CHARS_LENGTH)].map(i=>chars[Math.random()*chars.length|0]).concat(xChars).join``;
 };
+//mod function for string
 const cyclicStrings = (range, divisor, strings) => {
     const X_CHARS_LENGTH = 48;
     const xChars = getxChars(X_CHARS_LENGTH);
@@ -136,21 +143,21 @@ const cyclicStrings = (range, divisor, strings) => {
 const unique1 = shuffle(range(TUP_COUNT));
 // primary key, unique, sequential
 const unique2 = range(TUP_COUNT);
-// (unique1 mod 2)
+// (unique1 mod 2), random order
 const two = mod(unique1, 2);
-// (unique1 mod 4)
+// (unique1 mod 4), random order
 const four = mod(unique1, 4);
-// (unique1 mod 10)
+// (unique1 mod 10), random order
 const ten = mod(unique1, 10);
-// (unique1 mod 20)
+// (unique1 mod 20), random order
 const twenty = mod(unique1, 20);
-// (unique1 mod 100)
+// (unique1 mod 100), random order
 const onePercent = mod(unique1, 100);
-// (unique1 mod 10)
+// (unique1 mod 10), random order
 const tenPercent = mod(unique1, 10);
-// (unique1 mod 5)
+// (unique1 mod 5), random order
 const twentyPercent = mod(unique1, 5);
-// (unique1 mod 2)
+// (unique1 mod 2), random order
 const fiftyPercent = mod(unique1, 2);
 const unique3 = shuffle(range(TUP_COUNT));
 // (onePercent * 2)
@@ -166,6 +173,7 @@ const string4 = cyclicStrings(unique2, 4, ["AAAA", "HHHH", "OOOO", "VVVV"]);
 /**
  * GENERATE TUPLE
  */
+//Combines all the columns by index and returns the tuple
 const generateTuple = (primaryKey, index) => [
     unique1[index], 
     primaryKey,
@@ -185,12 +193,12 @@ const generateTuple = (primaryKey, index) => [
     string4[index]
 ];
 
+// colection of all tuples
 const dataset = unique2.map(generateTuple);
 
 /**
  * INSERT DATA INTO POSTGRES
  */
-
 const loadDataInRelation = (tableName) => {
     const client = new Client({
         user: 'postgres',
@@ -205,14 +213,15 @@ const loadDataInRelation = (tableName) => {
     const DROP_TABLE = drop_table(tableName);
     const CREATE_TABLE = create_table(tableName);
     const INSERT_ROW = insert_row(tableName);
+    const SELECT_ALL_ROWS = select_all_rows(tableName);
     const outputPath = `./${tableName}.csv`    
     client.query(DROP_TABLE)
         .then(_ => client.query(CREATE_TABLE))
         .then(_ => dataset.map(data => client.query(INSERT_ROW, data)))
-        .then(_ => client.query('SELECT * FROM TENKTUP1'))
+        .then(_ => client.query(SELECT_ALL_ROWS))
         .then(res => {
-            console.log(res.rows);     
-            storeData(res.rows, outputPath);    
+            // console.log(res.rows);     
+            json2csv(res.rows, outputPath);    
             client.end();
         })
         .catch(e => console.error(e.stack))
