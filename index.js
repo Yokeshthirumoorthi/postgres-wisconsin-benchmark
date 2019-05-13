@@ -227,5 +227,63 @@ const loadDataInRelation = (tableName) => {
         .catch(e => console.error(e.stack))
 };
 
-TABLES.map(loadDataInRelation);  
+// TABLES.map(loadDataInRelation);  
 
+
+const generateTuple_aero = (primaryKey, index) => { return { 
+    unique1:unique1[index], 
+    unique2:primaryKey,
+    two:two[index],
+    four:four[index],
+    ten:ten[index],
+    twenty:twenty[index],
+    onePercent:onePercent[index],
+    tenPercent:tenPercent[index],
+    twentyPercent:twentyPercent[index],
+    fiftyPercent:fiftyPercent[index],
+    unique3:unique3[index],
+    evenOnePercent:evenOnePercent[index],
+    oddOnePercent:oddOnePercent[index],
+    stringu1:stringu1[index], 
+    stringu2:stringu2[index], 
+    string4:string4[index]
+  }};
+const dataset_aero = unique2.map(generateTuple_aero);
+const Aerospike = require('aerospike')
+
+const config = {
+  hosts: 'localhost:3000'
+}
+const key = new Aerospike.Key('test', 'demo', 'demo')
+
+Aerospike.connect(config)
+  .then(client => {
+    const bins = dataset_aero;
+    const meta = { ttl: 10000 }
+    const policy = new Aerospike.WritePolicy({
+      exists: Aerospike.policy.exists.CREATE_OR_REPLACE
+    })
+
+    return client.put(key, bins, meta, policy)
+      .then(result => {
+        console.log(result.bins) // => { i: 124, l: 4, m: null }
+
+        return client.get(key)
+      })
+      .then(record => {
+        console.log(record.bins) // => { i: 124,
+                                 //      s: 'hello',
+                                 //      b: <Buffer 77 6f 72 6c 64>,
+                                 //      d: 3.1415,
+                                 //      g: '{"type":"Point","coordinates":[103.913,1.308]}',
+                                 //      l: [ 1, 'a', { x: 'y' }, 'z' ],
+                                 //      m: { foo: 4 } }
+      })
+      .then(() => client.close())
+  })
+  .catch(error => {
+    console.error('Error: %s [%i]', error.message, error.code)
+    if (error.client) {
+      error.client.close()
+    }
+  })
