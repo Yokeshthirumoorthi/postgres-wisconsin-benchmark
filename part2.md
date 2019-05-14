@@ -4,6 +4,10 @@
 * Aerospike
 
 #### Server Configurations
+* OS: Ubuntu 18.04
+* RAM: 16 GB
+* Processor: AMD® A10-8700p radeon r6
+* Cores: 4
 
 #### System Research
 
@@ -14,28 +18,38 @@
 
 ### Read Experiment
 * This test explores the performance of systems when the files are on different storage drives.
-    * Criterias:
-        * SCALES: [10, 1_000, 10_000, 100_000,  1M] 
-        * SCRIPT: ""
-        * TOTTRANS: 1M
-        * ENVIROMENTS: [HDD, SSD]
+* Test Specification:
+    * SCALES: [1_000, 10_000, 100_000,  1M] 
+    * SCRIPT: "SELECT * FROM TENKTUP2 WHERE unique2 = 2001"
+    * SETCLIENTS: [1]
+    * ENVIROMENTS: [HDD, SSD]
+    * SYSTEMS: [POSTGRESQL, AEROSPIKE] 
 * Metrics: 
     * TPS vs Scaling factor vs DB Size
 
 ### Write Experiment (Append-only)
 * This test explores how does the system work when we have large enough number of clients combined with more bytes written each time.
 * Test Specification:
-    * SCALES_UPTO: 1M 
-    * SCRIPT: Simple Wisconsim insert operation
-    * SETCLIENTS: [1, 10, 1_00, 1_000]
+    * SCALES: 1M 
+    * SCRIPT: "INSERT <TUPLE> INTO <RELATION>"; Client app inserts the generated row into the data table.
+    * SETCLIENTS: [1, 2, 4, 8, 16, 32]
+    * ENVIROMENTS: [HDD]
+    * SYSTEMS: [POSTGRESQL, AEROSPIKE] 
 * Metrics:
     * TPS vs number of clients
 
 ### Update Expeiment
 * This experiment compares the update performance of postgres on data columns, where each column has different skewness.
 * Test Specification:
-    * SCALES_UPTO: 1M 
-    * SCRIPT: Simple Wisonsin tuple insert operation
+    * SCALES: 1M 
+    * SCRIPT: [
+                "UPDATE TENKTUP1 SET onepercent = 101 WHERE onepercent= 1",
+                "UPDATE TENKTUP1 SET tenpercent = 11 WHERE tenpercent= 1",
+                "UPDATE TENKTUP1 SET twentypercent = 6 WHERE twentypercent= 1",
+                "UPDATE TENKTUP1 SET fiftypercent = 2 WHERE fiftypercent= 1
+                ] 
+    * ENVIROMENTS: [HDD]
+    * SYSTEMS: [POSTGRESQL] 
     * SETCLIENTS: [1]
 * Metrics:
     * Evalutaion time
@@ -43,8 +57,11 @@
 ### MemSize Expeiment
 * This experiment compares the read performance of postgres for varying memsize.
 * Test Specification:
-    * SCALES_UPTO: 100_000 
-    * SCRIPT: ""
+    * SCALES: 100_000 
+    * SCRIPT: "SELECT * FROM TENKTUP2 WHERE unique2 = 2001"
+    * WORKMEM: [4MB, 8MB]
+    * ENVIROMENTS: [HDD]
+    * SYSTEMS: [POSTGRESQL] 
     * SETCLIENTS: [1]
 * Metrics:
     * Evalutaion time
