@@ -85,25 +85,52 @@ const stringu1 = unique2.map(generateUniqueString);
 // candidate key
 const stringu2 = [...stringu1].sort();
 const string4 = cyclicStrings(unique2, 4, ["AAAA", "HHHH", "OOOO", "VVVV"]);
+  
+/**
+ * GENERATE TUPLE
+ */
+//Combines all the columns by index and returns the tuple
+const generateTuple = (primaryKey, index) => [
+    unique1[index], 
+    primaryKey,
+    two[index],
+    four[index],
+    ten[index],
+    twenty[index],
+    onePercent[index],
+    tenPercent[index],
+    twentyPercent[index],
+    fiftyPercent[index],
+    unique3[index],
+    evenOnePercent[index],
+    oddOnePercent[index],
+    stringu1[index], 
+    stringu2[index], 
+    string4[index]
+];
 
 // colection of all tuples
-const dataset = {
-    unique1, 
-    unique2,
-    two,
-    four,
-    ten,
-    twenty,
-    onePercent,
-    tenPercent,
-    twentyPercent,
-    fiftyPercent,
-    unique3,
-    evenOnePercent,
-    oddOnePercent,
-    stringu1, 
-    stringu2, 
-    string4
-};
+const dataset_as_relation = unique2.map(generateTuple);
 
-module.exports = {dataset}
+const generateKeyVal = (primaryKey, index) => { return { 
+    unique1:unique1[index], 
+    unique2:primaryKey,
+    two:two[index],
+    four:four[index],
+    ten:ten[index],
+    twenty:twenty[index],
+    onePercent:onePercent[index],
+    tenPercent:tenPercent[index],
+    twentyPercent:twentyPercent[index],
+    fiftyPercent:fiftyPercent[index],
+    unique3:unique3[index],
+    evenOnePercent:evenOnePercent[index],
+    oddOnePercent:oddOnePercent[index],
+    stringu1:stringu1[index], 
+    stringu2:stringu2[index], 
+    string4:string4[index]
+  }};
+  
+const dataset_as_json = unique2.map(generateKeyVal);
+
+module.exports = {dataset_as_json, dataset_as_relation}

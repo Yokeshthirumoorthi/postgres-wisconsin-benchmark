@@ -1,26 +1,8 @@
 const Aerospike = require('aerospike');
 const WiscData = require('../wiscData');
 
-const generateTuple = (primaryKey, index) => { return { 
-    unique1:WiscData.dataset.unique1[index], 
-    unique2:primaryKey,
-    two:WiscData.dataset.two[index],
-    four:WiscData.dataset.four[index],
-    ten:WiscData.dataset.ten[index],
-    twenty:WiscData.dataset.twenty[index],
-    onePercent:WiscData.dataset.onePercent[index],
-    tenPercent:WiscData.dataset.tenPercent[index],
-    twentyPercent:WiscData.dataset.twentyPercent[index],
-    fiftyPercent:WiscData.dataset.fiftyPercent[index],
-    unique3:WiscData.dataset.unique3[index],
-    evenOnePercent:WiscData.dataset.evenOnePercent[index],
-    oddOnePercent:WiscData.dataset.oddOnePercent[index],
-    stringu1:WiscData.dataset.stringu1[index], 
-    stringu2:WiscData.dataset.stringu2[index], 
-    string4:WiscData.dataset.string4[index]
-  }};
-  
-const dataset = WiscData.dataset.unique2.map(generateTuple);
+// colection of all tuples
+const dataset = WiscData.dataset_as_json;
 
 const config = {
   hosts: 'localhost:3000'

@@ -84,31 +84,9 @@ const json2csv = (data, path) => {
     }
   };
  
-/**
- * GENERATE TUPLE
- */
-//Combines all the columns by index and returns the tuple
-const generateTuple = (primaryKey, index) => [
-    wiscData.dataset.unique1[index], 
-    primaryKey,
-    wiscData.dataset.two[index],
-    wiscData.dataset.four[index],
-    wiscData.dataset.ten[index],
-    wiscData.dataset.twenty[index],
-    wiscData.dataset.onePercent[index],
-    wiscData.dataset.tenPercent[index],
-    wiscData.dataset.twentyPercent[index],
-    wiscData.dataset.fiftyPercent[index],
-    wiscData.dataset.unique3[index],
-    wiscData.dataset.evenOnePercent[index],
-    wiscData.dataset.oddOnePercent[index],
-    wiscData.dataset.stringu1[index], 
-    wiscData.dataset.stringu2[index], 
-    wiscData.dataset.string4[index]
-];
 
 // colection of all tuples
-const dataset = wiscData.dataset.unique2.map(generateTuple);
+const dataset = wiscData.dataset_as_relation;
 
 /**
  * INSERT DATA INTO POSTGRES
