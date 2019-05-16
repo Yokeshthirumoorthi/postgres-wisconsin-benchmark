@@ -14,28 +14,38 @@ Hence a comparision between these two systems looks to be an interesting choice.
 #### System Research    
 
 1. Aerospike Storage:
-Ref: https://www.aerospike.com/docs/architecture/storage.html
 
-Aerospike can store data in DRAM, SSDs, and traditional spinning media. Each namespace is separately configurable, which allows developers to put small, frequently accessed namespaces in DRAM, and put larger namespaces in less expensive storage such as SSD. Aerospike optimizes data storage on SSDs by bypassing the file system, which takes advantage of low-level SSD read and write patterns. 
+    Ref: https://www.aerospike.com/docs/architecture/storage.html
+
+    Aerospike can store data in DRAM, SSDs, and traditional spinning media. Each namespace is separately configurable, which allows developers to put small, frequently accessed namespaces in DRAM, and put larger namespaces in less expensive storage such as SSD. Aerospike optimizes data storage on SSDs by bypassing the file system, which takes advantage of low-level SSD read and write patterns. 
 
 2. Postgres Disk Setup:
-Ref: Postgres 10 High Availability (by Gregory Smith; Enrico Pirozzi; Ibrar Ahmed)
-Most operating systems (OSes) include multiple options for the filesystem used to store information onto the disk. Choosing between these options can be difficult, because it normally involves some tricky speed versus reliability trade-offs. Similarly, how to set up your database to spread its components across many available disks also has trade-offs, with speed, reliability, and available disk space all linked.
+
+    Ref: Postgres 10 High Availability (by Gregory Smith; Enrico Pirozzi; Ibrar Ahmed)
+
+    Most operating systems (OSes) include multiple options for the filesystem used to store information onto the disk. Choosing between these options can be difficult, because it normally involves some tricky speed versus reliability trade-offs. Similarly, how to set up your database to spread its components across many available disks also has trade-offs, with speed, reliability, and available disk space all linked.
 
 3. Aerospike Primary Index:
-Ref: https://www.aerospike.com/docs/architecture/primary-index.html
-In an operational database, the fastest and most predictable index is the primary key index. In Aerospike, the primary key index is a blend of distributed hash table technology with a distributed tree structure in each server. 
+
+    Ref: https://www.aerospike.com/docs/architecture/primary-index.html
+
+    In an operational database, the fastest and most predictable index is the primary key index. In Aerospike, the primary key index is a blend of distributed hash table technology with a distributed tree structure in each server. 
 
 4. Postgresql work_mem option:
-Ref: https://www.postgresql.org/docs/9.4/runtime-config-resource.html 
-When a query is running that needs to sort data, the database estimates how much data is involved and then compares it to the work_mem parameter. If it's larger (and the default is only 1 MB), rather than sorting in memory it will write all the data out and use a disk-based sort instead. This is much, much slower than a memory based one.
+
+    Ref: https://www.postgresql.org/docs/9.4/runtime-config-resource.html
+
+    When a query is running that needs to sort data, the database estimates how much data is involved and then compares it to the work_mem parameter. If it's larger (and the default is only 1 MB), rather than sorting in memory it will write all the data out and use a disk-based sort instead. This is much, much slower than a memory based one.
 
 5. Enable_hashjoin (boolean)
-Ref: https://www.postgresql.org/docs/9.4/runtime-config-query.html
-Enables or disables the query planner's use of hash-join plan types. The default is on.
+
+    Ref: https://www.postgresql.org/docs/9.4/runtime-config-query.html
+
+    Enables or disables the query planner's use of hash-join plan types. The default is on.
 
 
 #### Server Configuration Used For These Experiments 
+
 * OS: Ubuntu 18.04
 * RAM: 16 GB
 * Processor: AMD® A10-8700p radeon r6
@@ -43,13 +53,13 @@ Enables or disables the query planner's use of hash-join plan types. The default
 
 #### System Research
 
-### Overview
+#### Overview
 1. Read experiments by placing filesystem in various drives.
 2. Append only writes with multiple clients in both the systems.
 3. Update query run on various columns, only in postgres.
 4. Sort Query on various mem size, only in postgres.
 
-### Read Experiment
+#### Read Experiment
 * This test explores the performance of systems when the files are on different storage drives.
 * Test Specification:
     * SCALES: [1_000, 10_000, 100_000,  1M] 
@@ -62,7 +72,7 @@ Enables or disables the query planner's use of hash-join plan types. The default
 * Expected Output:
     * Aerospike would outperform Postgresql on both HDD and SSD, atleast by a factor of 2.
 
-### Write Experiment (Append-only)
+#### Write Experiment (Append-only)
 * This test explores how does the system work when we have large enough number of clients combined with more bytes written each time.
 * Test Specification:
     * DATASIZE: 1M 
@@ -75,16 +85,17 @@ Enables or disables the query planner's use of hash-join plan types. The default
 * Expected Output:
     * Aerospike would outperform Postgresql, for all values of concurrent clients , atleast by a factor of 2.
 
-### Update Expeiment
+#### Update Expeiment
 * This experiment compares the update performance of postgres on data columns, where each column has different skewness.
 * Test Specification:
     * DATASIZE: 1M 
-    * SCRIPT: [
+    * SCRIPT:
+             
                 "UPDATE TENKTUP1 SET onepercent = 101 WHERE onepercent= 1",
                 "UPDATE TENKTUP1 SET tenpercent = 11 WHERE tenpercent= 1",
                 "UPDATE TENKTUP1 SET twentypercent = 6 WHERE twentypercent= 1",
                 "UPDATE TENKTUP1 SET fiftypercent = 2 WHERE fiftypercent= 1
-                ] 
+ 
     * ENVIROMENTS: [HDD]
     * SYSTEMS: [POSTGRESQL] 
     * SETCLIENTS: [1]
@@ -93,7 +104,7 @@ Enables or disables the query planner's use of hash-join plan types. The default
 * Expected Output:
     * Since onepercent, tenpercent, twentypercent and fiftypercent are nonindexed columns, all the queries should take same time for execution in spite of its skewness. 
 
-### MemSize Expeiment
+#### MemSize Expeiment
 * This experiment compares the read performance of postgres for varying memsize.
 * Test Specification:
     * DATASIZE: 100_000 
