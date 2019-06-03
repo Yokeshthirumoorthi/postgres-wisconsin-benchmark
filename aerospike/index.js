@@ -2,6 +2,8 @@ const Aerospike = require('aerospike');
 const WiscData = require('../wiscData');
 const array = require('lodash/array');
 
+const SET_CLIENTS = [1, 2, 4, 8, 16, 32];
+
 // colection of all tuples
 const dataset = WiscData.dataset_as_json;
 
@@ -12,6 +14,41 @@ const config = {
 }
 const key = new Aerospike.Key('test', 'demo', 'demo')
 
+const loadData = (dataset) => {
+  Aerospike.connect(config)
+  .then(client => {
+    const bins = dataset;
+    const meta = { ttl: 10000 }
+    const policy = new Aerospike.WritePolicy({
+      exists: Aerospike.policy.exists.CREATE_OR_REPLACE
+    })
+
+    return client.put(key, bins, meta, policy)
+      .then(() => client.close())
+  })
+  .catch(error => {
+    console.error('Error: %s [%i]', error.message, error.code)
+    if (error.client) {
+      error.client.close()
+    }
+  })
+}
+
+const readData = () => {
+  Aerospike.connect(config)
+  .then(client => {
+    return client.get(key)
+      .then(record => console.log("Total Records in bin: " + Object.keys(record.bins).length))
+      .then(() => client.close())
+  })
+  .catch(error => {
+    console.error('Error: %s [%i]', error.message, error.code)
+    if (error.client) {
+      error.client.close()
+    }
+  })
+}
+
 const loadDataInRelation_Parallel = (datachunk) => {
   Aerospike.connect(config)
     .then(client => {
@@ -21,8 +58,8 @@ const loadDataInRelation_Parallel = (datachunk) => {
         exists: Aerospike.policy.exists.CREATE_OR_REPLACE
       })
 
-      // return client.put(key, bins, meta, policy)
-      return Promise.all(datachunk.map(data => client.put(key, data, meta, policy)))
+      // return Promise.all(datachunk.map(data => client.put(key, data, meta, policy)))
+      client.get(key)
         .then(() => client.close())
     })
     .catch(error => {
@@ -46,6 +83,7 @@ const do_parallel = (client_count) => {
       })    
 }
 
-const SET_CLIENTS = [1, 2, 4, 8, 16, 32];
+loadData(dataset)
+// readData()
+// SET_CLIENTS.map(do_parallel);
 
-SET_CLIENTS.map(do_parallel);
