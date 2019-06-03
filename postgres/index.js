@@ -147,7 +147,8 @@ const loadDataInRelation_Parallel =  (tableName, datachunk) => {
 
     const INSERT_ROW = insert_row(tableName);
     
-    Promise.all(datachunk.map(data => client.query(INSERT_ROW, data)))
+    // Promise.all(datachunk.map(data => client.query(INSERT_ROW, data)))
+    client.query("SELECT * FROM TENKTUP2 WHERE unique2 = 2001")
         .then(res => client.end())
         .catch(e => console.error(e.stack))
 };
@@ -174,8 +175,8 @@ const setupdb = (tableName) => {
 const do_parallel = (client_count) => {
     const DATA_COUNT = 1000;
     const CHUNK_SIZE = DATA_COUNT / client_count;
-    const tableName = "TENKTUP1";
-    setupdb(tableName);
+    const tableName = "TENKTUP1M";
+    // setupdb(tableName);
     const start = new Date();
     return Promise.all(array.chunk(dataset, CHUNK_SIZE)
                         .map((chunk) => loadDataInRelation_Parallel(tableName, chunk)))
