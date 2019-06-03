@@ -2,6 +2,8 @@ const { Client } = require('pg')
 const wiscData = require('../wiscData')
 const JSONToCSV = require("json2csv").parse;
 const FileSystem = require("fs");
+const array = require('lodash/array');
+
 /**
  * DATABASE CONSTANTS
  */
@@ -13,13 +15,13 @@ const FIELDS = [
     "four",
     "ten",
     "twenty",
-    "onepercent",
-    "tenpercent",
-    "twentypercent",
-    "fiftypercent",
+    "onePercent",
+    "tenPercent",
+    "twentyPercent",
+    "fiftyPercent",
     "unique3",
-    "evenonepercent",
-    "oddonepercent",
+    "evenOnePercent",
+    "oddOnePercent",
     "stringu1",
     "stringu2",
     "string4"
@@ -113,10 +115,78 @@ const loadDataInRelation = (tableName) => {
         .then(_ => client.query(SELECT_ALL_ROWS))
         .then(res => {
             // console.log(res.rows);     
-            json2csv(res.rows, outputPath);    
+            // json2csv(res.rows, outputPath);    
             client.end();
         })
         .catch(e => console.error(e.stack))
 };
 
-TABLES.map(loadDataInRelation);  
+
+// console.log(wiscData.dataset_as_json);
+
+// json2csv(wiscData.dataset_as_json, './TENKTUP1M.csv');
+// dataset.map(data => client.query(INSERT_ROW, data));
+// TABLES.map(loadDataInRelation);  
+// loadDataInRelation("TENKTUP100K");
+// loadDataInRelation("TENKTUP1M");
+
+
+/**
+ * INSERT DATA INTO PARALLEL POSTGRES
+ */
+const loadDataInRelation_Parallel =  (tableName, datachunk) => {
+    const client = new Client({
+        user: 'postgres',
+        host: 'localhost',
+        database: 'wisc',
+        password: 'postgres',
+        port: 5432,
+      });
+    
+    client.connect();
+
+    const INSERT_ROW = insert_row(tableName);
+    
+    Promise.all(datachunk.map(data => client.query(INSERT_ROW, data)))
+        .then(res => client.end())
+        .catch(e => console.error(e.stack))
+};
+
+const setupdb = (tableName) => {
+    const client = new Client({
+        user: 'postgres',
+        host: 'localhost',
+        database: 'wisc',
+        password: 'postgres',
+        port: 5432,
+      });
+    
+    client.connect();
+    
+    const DROP_TABLE = drop_table(tableName);
+    const CREATE_TABLE = create_table(tableName);
+    client.query(DROP_TABLE)
+        .then(_ => client.query(CREATE_TABLE))
+        .then(_ => client.end())
+        .catch(e => console.error(e.stack))
+};
+
+const do_parallel = (client_count) => {
+    const DATA_COUNT = 1000;
+    const CHUNK_SIZE = DATA_COUNT / client_count;
+    const tableName = "TENKTUP1";
+    setupdb(tableName);
+    const start = new Date();
+    return Promise.all(array.chunk(dataset, CHUNK_SIZE)
+                        .map((chunk) => loadDataInRelation_Parallel(tableName, chunk)))
+        .then(_ => {
+                const end = new Date() - start;
+                const total_time_sec = end / DATA_COUNT;
+                const tps = DATA_COUNT / total_time_sec;
+                console.log(client_count + ' clients --- TPS: %d', tps);
+        })    
+}
+
+const SET_CLIENTS = [1, 2, 4, 8, 16, 32];
+
+SET_CLIENTS.map(do_parallel);
