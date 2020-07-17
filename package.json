@@ -27,7 +27,7 @@
   "dependencies": {
     "aerospike": "^3.10.0",
     "json2csv": "^4.5.0",
-    "lodash": "^4.17.11",
+    "lodash": "^4.17.19",
     "pg": "^7.10.0"
   }
 }
